@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Grid Bot Monitor</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#0d0d0d;--bg2:#161616;--bg3:#1f1f1f;--border:#252525;--text:#e5e5e5;--muted:#666;--green:#4ade80;--red:#f87171;--yellow:#fbbf24;--cyan:#22d3ee;--blue:#60a5fa;--purple:#a78bfa}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;min-height:100vh;padding-bottom:80px}
+
+/* Login */
+#login-screen{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
+.login-card{background:var(–bg2);border:0.5px solid var(–border);border-radius:20px;padding:32px 24px;width:100%;max-width:360px}
+.login-card h2{font-size:22px;font-weight:500;margin-bottom:6px;color:var(–text)}
+.login-card p{font-size:13px;color:var(–muted);margin-bottom:24px}
+.login-card input{width:100%;background:var(–bg3);border:0.5px solid var(–border);border-radius:10px;padding:12px 14px;color:var(–text);font-size:15px;margin-bottom:10px;outline:none}
+.login-card input:focus{border-color:#555}
+.btn-primary{width:100%;background:var(–green);color:#000;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px}
+.login-error{color:var(–red);font-size:12px;margin-top:8px;text-align:center}
+
+/* Header */
+.header{position:sticky;top:0;z-index:10;background:rgba(13,13,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:0.5px solid var(–border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.header-title{font-size:16px;font-weight:500}
+.header-right{display:flex;align-items:center;gap:8px}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(–green);animation:pulse 2s infinite}
+.live-dot.offline{background:var(–red);animation:none}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.last-update{font-size:11px;color:var(–muted)}
+
+/* Tabs */
+.tabs{display:flex;gap:3px;padding:10px 12px 0;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;color:var(–muted);cursor:pointer;border:0.5px solid transparent;transition:all .15s}
+.tab.active{background:var(–bg2);color:var(–text);border-color:var(–border)}
+
+/* Cards */
+.content{padding:10px 12px}
+.card{background:var(–bg2);border:0.5px solid var(–border);border-radius:16px;padding:14px;margin-bottom:10px}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.card-title{font-size:14px;font-weight:500;color:var(–text)}
+.badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
+.badge.active{background:#14532d;color:var(–green)}
+.badge.offline{background:#450a0a;color:var(–red)}
+.badge.warn{background:#713f12;color:var(–yellow)}
+
+/* Metrics */
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
+.metric{background:var(–bg3);border-radius:10px;padding:10px 12px}
+.metric-label{font-size:10px;color:var(–muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.metric-value{font-size:18px;font-weight:500}
+.metric-value.green{color:var(–green)}
+.metric-value.red{color:var(–red)}
+.metric-value.yellow{color:var(–yellow)}
+.metric-value.cyan{color:var(–cyan)}
+.metric-value.blue{color:var(–blue)}
+
+/* Levels */
+.levels-title{font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.level-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(–border);font-size:13px}
+.level-row:last-child{border-bottom:none}
+.level-info{color:var(–muted)}
+.level-floor{font-size:11px;color:var(–cyan)}
+
+/* Progress bar */
+.prog-bar{height:4px;background:var(–bg3);border-radius:2px;margin:10px 0 4px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width .5s}
+.prog-fill.safe{background:var(–green)}
+.prog-fill.warn{background:var(–yellow)}
+.prog-fill.danger{background:var(–red)}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(–muted)}
+
+/* Alerts */
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;background:var(–bg3);margin-bottom:6px}
+.alert-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.alert-dot.success{background:var(–green)}
+.alert-dot.info{background:var(–blue)}
+.alert-dot.warning{background:var(–yellow)}
+.alert-dot.error{background:var(–red)}
+.alert-text{font-size:13px;color:var(–text);line-height:1.4}
+.alert-time{font-size:10px;color:var(–muted);margin-top:2px}
+
+/* Bottom nav */
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,.95);backdrop-filter:blur(12px);border-top:0.5px solid var(–border);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;cursor:pointer;opacity:.5;transition:opacity .15s}
+.nav-item.active{opacity:1}
+.nav-icon{font-size:20px;line-height:1}
+.nav-label{font-size:10px;color:var(–text)}
+
+/* Section divider */
+.section-label{font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:.06em;padding:14px 0 6px}
+
+/* Loading */
+#loading{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:50}
+.spinner{width:32px;height:32px;border:2px solid var(–border);border-top-color:var(–green);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.hidden{display:none!important}
+
+/* Empty state */
+.empty{text-align:center;padding:32px 16px;color:var(–muted);font-size:14px}
+</style>
+
+</head>
+<body>
+
+<!-- Loading -->
+
+<div id="loading">
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--muted)">Verbinde...</div>
+</div>
+
+<!-- Login -->
+
+<div id="login-screen" class="hidden">
+  <div class="login-card">
+    <h2>Bot Monitor</h2>
+    <p>Melde dich an um deine Bots zu überwachen</p>
+    <input type="email" id="email" placeholder="E-Mail" autocomplete="email">
+    <input type="password" id="password" placeholder="Passwort" autocomplete="current-password">
+    <button class="btn-primary" onclick="doLogin()">Anmelden</button>
+    <div class="login-error hidden" id="login-error"></div>
+  </div>
+</div>
+
+<!-- App -->
+
+<div id="app" class="hidden">
+  <div class="header">
+    <div class="header-title">Bot Monitor</div>
+    <div class="header-right">
+      <div class="live-dot" id="live-dot"></div>
+      <div class="last-update" id="last-update">–</div>
+      <div style="font-size:11px;color:var(--muted);cursor:pointer" onclick="doLogout()">Logout</div>
+    </div>
+  </div>
+
+  <!-- Tabs (Übersicht + je Bot) -->
+
+  <div class="tabs">
+    <div class="tab active" data-tab="overview" onclick="switchTab('overview')">Übersicht</div>
+    <div class="tab" data-tab="gs" onclick="switchTab('gs')">Gold/Silber</div>
+    <div class="tab" data-tab="wb" onclick="switchTab('wb')">WTI/BRENT</div>
+    <div class="tab" data-tab="btc" onclick="switchTab('btc')">BTC</div>
+    <div class="tab" data-tab="alerts" onclick="switchTab('alerts')">Alerts</div>
+  </div>
+
+  <!-- Overview Tab -->
+
+  <div class="content" id="tab-overview">
+    <div class="section-label">Live Status</div>
+    <div id="overview-cards"></div>
+  </div>
+
+  <!-- Bot Detail Tabs -->
+
+  <div class="content hidden" id="tab-gs">   <div id="detail-gs"></div></div>
+  <div class="content hidden" id="tab-wb">   <div id="detail-wb"></div></div>
+  <div class="content hidden" id="tab-btc">  <div id="detail-btc"></div></div>
+
+  <!-- Alerts Tab -->
+
+  <div class="content hidden" id="tab-alerts">
+    <div class="section-label">Letzte Ereignisse</div>
+    <div id="alerts-list"></div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" data-nav="overview" onclick="switchTab('overview')">
+      <div class="nav-icon">⊞</div><div class="nav-label">Übersicht</div>
+    </div>
+    <div class="nav-item" data-nav="gs" onclick="switchTab('gs')">
+      <div class="nav-icon">◈</div><div class="nav-label">GS Bot</div>
+    </div>
+    <div class="nav-item" data-nav="wb" onclick="switchTab('wb')">
+      <div class="nav-icon">◈</div><div class="nav-label">WTI Bot</div>
+    </div>
+    <div class="nav-item" data-nav="btc" onclick="switchTab('btc')">
+      <div class="nav-icon">₿</div><div class="nav-label">BTC Bot</div>
+    </div>
+    <div class="nav-item" data-nav="alerts" onclick="switchTab('alerts')">
+      <div class="nav-icon">◉</div><div class="nav-label">Alerts</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Config ──────────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://rvnsamjshxpkmsbxsouj.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ2bnNhbWpzaHhwa21zYnhzb3VqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NTM1NTgsImV4cCI6MjA5MjAyOTU1OH0.ZkQGsWb2RmRtrCAF_p6WTcNANR9c5V5IvkkS8ReOaKM';
+
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+let botData    = {};
+let positions  = {};
+let alerts     = [];
+let activeTab  = 'overview';
+let isOnline   = false;
+
+// ── Auth ────────────────────────────────────────────────────────
+async function init() {
+  const { data: { session } } = await sb.auth.getSession();
+  document.getElementById('loading').classList.add('hidden');
+  if (session) {
+    showApp();
+  } else {
+    document.getElementById('login-screen').classList.remove('hidden');
+  }
+}
+
+async function doLogin() {
+  const email = document.getElementById('email').value;
+  const pw    = document.getElementById('password').value;
+  const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+  if (error) {
+    const el = document.getElementById('login-error');
+    el.textContent = 'Fehler: ' + error.message;
+    el.classList.remove('hidden');
+  } else {
+    document.getElementById('login-screen').classList.add('hidden');
+    showApp();
+  }
+}
+
+async function doLogout() {
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// ── App Start ───────────────────────────────────────────────────
+function showApp() {
+  document.getElementById('app').classList.remove('hidden');
+  loadData();
+  subscribeRealtime();
+}
+
+async function loadData() {
+  const [statusRes, posRes, alertRes] = await Promise.all([
+    sb.from('bot_status').select('*'),
+    sb.from('grid_positions').select('*'),
+    sb.from('alerts').select('*').order('timestamp', {ascending: false}).limit(50),
+  ]);
+  if (statusRes.data)  statusRes.data.forEach(r => botData[r.id] = r);
+  if (posRes.data)     groupPositions(posRes.data);
+  if (alertRes.data)   alerts = alertRes.data;
+  render();
+}
+
+function groupPositions(data) {
+  positions = {};
+  data.forEach(p => {
+    if (!positions[p.bot_id]) positions[p.bot_id] = [];
+    positions[p.bot_id].push(p);
+  });
+}
+
+// ── Realtime ────────────────────────────────────────────────────
+function subscribeRealtime() {
+  sb.channel('monitor')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'bot_status' },
+      payload => { botData[payload.new.id] = payload.new; render(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'grid_positions' },
+      payload => { loadPositions(); })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'alerts' },
+      payload => { alerts.unshift(payload.new); renderAlerts(); })
+    .subscribe(status => {
+      isOnline = status === 'SUBSCRIBED';
+      const dot = document.getElementById('live-dot');
+      dot.className = 'live-dot' + (isOnline ? '' : ' offline');
+    });
+}
+
+async function loadPositions() {
+  const { data } = await sb.from('grid_positions').select('*');
+  if (data) { groupPositions(data); render(); }
+}
+
+// ── Helpers ─────────────────────────────────────────────────────
+const fmtPnl  = v => (v >= 0 ? '+' : '') + '$' + Math.abs(v).toFixed(2);
+const pnlCol  = v => v >= 0 ? 'green' : 'red';
+const ago     = ts => {
+  const s = Math.floor((Date.now() - new Date(ts)) / 1000);
+  if (s < 60)  return s + 's';
+  if (s < 3600) return Math.floor(s/60) + 'm';
+  return Math.floor(s/3600) + 'h';
+};
+
+function stopBar(used, max, label) {
+  const pct = Math.min(100, max > 0 ? (used / max * 100) : 0);
+  const cls = pct < 40 ? 'safe' : pct < 75 ? 'warn' : 'danger';
+  return `
+    <div class="prog-bar"><div class="prog-fill ${cls}" style="width:${pct.toFixed(1)}%"></div></div>
+    <div class="prog-labels"><span>${label}</span><span>$${used.toFixed(0)} / $${max.toFixed(0)}</span></div>`;
+}
+
+// ── Render ──────────────────────────────────────────────────────
+function render() {
+  document.getElementById('last-update').textContent = new Date().toLocaleTimeString('de-AT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  renderOverview();
+  renderDetail('gs');
+  renderDetail('wb');
+  renderDetail('btc');
+  renderAlerts();
+}
+
+function renderOverview() {
+  const bots = [
+    {id:'gs',  name:'Gold / Silber', sym:'XAUUSD/XAGUSD'},
+    {id:'wb',  name:'WTI / BRENT',   sym:'WTI/BRENT'},
+    {id:'btc', name:'BTC Scalping',  sym:'BTCUSD'},
+  ];
+  document.getElementById('overview-cards').innerHTML = bots.map(b => {
+    const d = botData[b.id];
+    if (!d) return `<div class="card"><div class="card-header"><span class="card-title">${b.name}</span><span class="badge offline">Offline</span></div><div style="color:var(--muted);font-size:13px">Keine Daten</div></div>`;
+    const updated = ago(d.updated_at);
+    const stale = (Date.now() - new Date(d.updated_at)) > 30000;
+    const badge = stale ? 'offline' : (d.emergency ? 'warn' : 'active');
+    const badgeTxt = stale ? 'Offline' : (d.emergency ? '⚠ Halt' : '● Aktiv');
+    const pos = positions[b.id] || [];
+    const stopPct = d.max_loss > 0 ? Math.min(100, (d.dollar_stop||0) / d.max_loss * 100) : 0;
+    const stopCls = stopPct < 40 ? 'safe' : stopPct < 75 ? 'warn' : 'danger';
+
+    return `
+    <div class="card" onclick="switchTab('${b.id}')">
+      <div class="card-header">
+        <div>
+          <div class="card-title">${b.name}</div>
+          <div style="font-size:11px;color:var(--muted);margin-top:2px">${b.sym} · ${updated} ago</div>
+        </div>
+        <span class="badge ${badge}">${badgeTxt}</span>
+      </div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Session P&L</div><div class="metric-value ${pnlCol(d.session_pnl)}">${fmtPnl(d.session_pnl||0)}</div></div>
+        <div class="metric"><div class="metric-label">${b.id==='btc'?'Live P&L':'Grid P&L'}</div><div class="metric-value ${pnlCol(d.total_pnl)}">${fmtPnl(d.total_pnl||0)}</div></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px">
+        <span>${d.n_open||0} offen · W:${d.trades_won||0} V:${d.trades_lost||0}</span>
+        <span>${(d.trades_won||0)+(d.trades_lost||0) > 0 ? Math.round((d.trades_won||0)/((d.trades_won||0)+(d.trades_lost||0))*100)+'% WR' : '–'}</span>
+      </div>
+      <div class="prog-bar"><div class="prog-fill ${stopCls}" style="width:${stopPct.toFixed(1)}%"></div></div>
+      <div class="prog-labels"><span>$-Stop</span><span>$${(d.dollar_stop||0).toFixed(0)} / $${(d.max_loss||0).toFixed(0)}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderDetail(botId) {
+  const el = document.getElementById(`detail-${botId}`);
+  if (!el) return;
+  const d   = botData[botId];
+  const pos = (positions[botId] || []).sort((a,b) => a.level_idx - b.level_idx);
+
+  if (!d) { el.innerHTML = '<div class="empty">Keine Daten – Bot gestartet?</div>'; return; }
+
+  const isGS  = botId === 'gs';
+  const isWB  = botId === 'wb';
+  const isBTC = botId === 'btc';
+
+  let html = '';
+
+  // ── Preise ──────────────────────────────────────────────────
+  if (!isBTC) {
+    html += `<div class="card">
+      <div class="card-header"><span class="card-title">Preise & Z-Score</span></div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">${isGS?'Gold':'WTI'}</div><div class="metric-value">${(d.sym1_bid||0).toFixed(2)}</div></div>
+        <div class="metric"><div class="metric-label">${isGS?'Silber':'BRENT'}</div><div class="metric-value">${(d.sym2_bid||0).toFixed(3)}</div></div>
+        <div class="metric"><div class="metric-label">Z-Score</div><div class="metric-value ${Math.abs(d.z_score||0)>2.5?'red':Math.abs(d.z_score||0)>1.5?'yellow':'green'}">${(d.z_score||0).toFixed(3)}</div></div>
+        <div class="metric"><div class="metric-label">Half-Life</div><div class="metric-value blue">${(d.half_life_h||0).toFixed(1)}h</div></div>
+      </div>
+      <div style="font-size:11px;color:var(--muted)">Hurst: ${(d.hurst_exp||0.5).toFixed(3)} &nbsp;·&nbsp; σ=${(d.ratio_std||0).toFixed(4)}</div>
+    </div>`;
+  } else {
+    html += `<div class="card">
+      <div class="card-header"><span class="card-title">BTC Preis</span></div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">Bid</div><div class="metric-value">${(d.sym1_bid||0).toFixed(0)}</div></div>
+        <div class="metric"><div class="metric-label">Spread</div><div class="metric-value">${(d.sym1_spread||0).toFixed(1)}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">${d.status||'–'}</div>
+    </div>`;
+  }
+
+  // ── Account ─────────────────────────────────────────────────
+  html += `<div class="card">
+    <div class="card-header"><span class="card-title">Account</span></div>
+    <div class="metric-grid">
+      <div class="metric"><div class="metric-label">Balance</div><div class="metric-value">$${(d.balance||0).toLocaleString('de-AT',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+      <div class="metric"><div class="metric-label">Equity</div><div class="metric-value ${pnlCol((d.equity||0)-(d.balance||0))}">$${(d.equity||0).toLocaleString('de-AT',{minimumFractionDigits:2,maximumFractionDigits:2})}</div></div>
+      <div class="metric"><div class="metric-label">Session P&L</div><div class="metric-value ${pnlCol(d.session_pnl||0)}">${fmtPnl(d.session_pnl||0)}</div></div>
+      <div class="metric"><div class="metric-label">W / V / WR</div><div class="metric-value cyan">${d.trades_won||0} / ${d.trades_lost||0} / ${(d.trades_won||0)+(d.trades_lost||0)>0?Math.round((d.trades_won||0)/((d.trades_won||0)+(d.trades_lost||0))*100)+'%':'–'}</div></div>
+    </div>
+    ${stopBar(d.dollar_stop||0, d.max_loss||5000, '$-Stop')}
+  </div>`;
+
+  // ── Grid / Positionen ────────────────────────────────────────
+  if (pos.length > 0) {
+    const totalPnl = pos.reduce((s,p) => s+(p.pnl||0), 0);
+    html += `<div class="card">
+      <div class="card-header">
+        <span class="card-title">${isBTC?'Offene Positionen':'Grid'} (${pos.length})</span>
+        <span style="font-size:13px;color:${totalPnl>=0?'var(--green)':'var(--red)'}">${fmtPnl(totalPnl)}</span>
+      </div>`;
+    pos.forEach(p => {
+      const dirCol = p.direction==='LONG' ? 'var(--green)' : 'var(--red)';
+      const floorStr = p.trail_active ? `<span class="level-floor">Floor $${(p.trail_floor||0).toFixed(1)}</span>` : `<span style="font-size:11px;color:var(--muted)">○ ausstehend</span>`;
+      html += `<div class="level-row">
+        <span class="level-info">${isBTC?'Ticket':'L'+p.level_idx} <span style="color:${dirCol}">${p.direction}</span></span>
+        <span style="color:${(p.pnl||0)>=0?'var(--green)':'var(--red)'};font-weight:500">${fmtPnl(p.pnl||0)}</span>
+        ${floorStr}
+        <span style="font-size:11px;color:var(--muted)">${p.age_min||0}m</span>
+      </div>`;
+    });
+    html += '</div>';
+  } else {
+    html += `<div class="card"><div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Keine offenen Positionen</div></div>`;
+  }
+
+  // ── Hedge (nur GS/WB) ────────────────────────────────────────
+  if (!isBTC && d.dv_sym1 > 0) {
+    const balanced = (d.delta_pct||0) < 5;
+    html += `<div class="card">
+      <div class="card-header"><span class="card-title">Hedge Balance</span><span class="badge ${balanced?'active':'warn'}">${d.hedge_status||'–'}</span></div>
+      <div class="metric-grid">
+        <div class="metric"><div class="metric-label">DV/1% ${isGS?'Gold':'WTI'}</div><div class="metric-value">$${(d.dv_sym1||0).toFixed(0)}</div></div>
+        <div class="metric"><div class="metric-label">DV/1% ${isGS?'Silber':'BRENT'}</div><div class="metric-value">$${(d.dv_sym2||0).toFixed(0)}</div></div>
+      </div>
+      <div style="font-size:12px;color:var(--muted)">Delta: $${Math.abs((d.dv_sym1||0)-(d.dv_sym2||0)).toFixed(0)} (${(d.delta_pct||0).toFixed(1)}%)</div>
+    </div>`;
+  }
+
+  el.innerHTML = html;
+}
+
+function renderAlerts() {
+  const el = document.getElementById('alerts-list');
+  if (!el) return;
+  if (alerts.length === 0) {
+    el.innerHTML = '<div class="empty">Noch keine Ereignisse</div>';
+    return;
+  }
+  el.innerHTML = alerts.slice(0, 30).map(a => {
+    const bot = a.bot_id === 'gs' ? 'GS' : a.bot_id === 'wb' ? 'WB' : 'BTC';
+    return `<div class="alert-item">
+      <div class="alert-dot ${a.level}"></div>
+      <div>
+        <div class="alert-text"><span style="color:var(--muted);font-size:11px">${bot}</span>&nbsp; ${a.message}</div>
+        <div class="alert-time">${new Date(a.timestamp).toLocaleString('de-AT')}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Navigation ──────────────────────────────────────────────────
+function switchTab(tab) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.toggle('active', el.dataset.nav === tab));
+  ['overview','gs','wb','btc','alerts'].forEach(id => {
+    const el = document.getElementById('tab-' + id);
+    if (el) el.classList.toggle('hidden', id !== tab);
+  });
+}
+
+// ── Start ────────────────────────────────────────────────────────
+init();
+</script>
+
+</body>
+</html>
