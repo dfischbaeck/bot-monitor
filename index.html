@@ -141,6 +141,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     <div class="tab" data-tab="gs" onclick="switchTab('gs')">Gold/Silber</div>
     <div class="tab" data-tab="wb" onclick="switchTab('wb')">WTI/BRENT</div>
     <div class="tab" data-tab="btc" onclick="switchTab('btc')">BTC</div>
+    <div class="tab" data-tab="eg" onclick="switchTab('eg')">EUR/GBP</div>
     <div class="tab" data-tab="alerts" onclick="switchTab('alerts')">Alerts</div>
   </div>
 
@@ -154,6 +155,7 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <div class="content hidden" id="tab-gs">   <div id="detail-gs"></div></div>
   <div class="content hidden" id="tab-wb">   <div id="detail-wb"></div></div>
   <div class="content hidden" id="tab-btc">  <div id="detail-btc"></div></div>
+  <div class="content hidden" id="tab-eg">   <div id="detail-eg"></div></div>
 
   <!-- Alerts Tab -->
   <div class="content hidden" id="tab-alerts">
@@ -173,6 +175,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     </div>
     <div class="nav-item" data-nav="btc" onclick="switchTab('btc')">
       <div class="nav-icon">₿</div><div class="nav-label">BTC Bot</div>
+    </div>
+    <div class="nav-item" data-nav="eg" onclick="switchTab('eg')">
+      <div class="nav-icon">€</div><div class="nav-label">EG Bot</div>
     </div>
     <div class="nav-item" data-nav="alerts" onclick="switchTab('alerts')">
       <div class="nav-icon">◉</div><div class="nav-label">Alerts</div>
@@ -376,6 +381,7 @@ function render() {
   renderDetail('gs');
   renderDetail('wb');
   renderDetail('btc');
+  renderDetail('eg');
   renderAlerts();
 }
 
@@ -384,6 +390,7 @@ function renderOverview() {
     {id:'gs',  name:'Gold / Silber', sym:'XAUUSD/XAGUSD'},
     {id:'wb',  name:'WTI / BRENT',   sym:'WTI/BRENT'},
     {id:'btc', name:'BTC Scalping',  sym:'BTCUSD'},
+    {id:'eg',  name:'EUR / GBP',      sym:'EURUSD/GBPUSD'},
   ];
   document.getElementById('overview-cards').innerHTML = bots.map(b => {
     const d = botData[b.id];
@@ -591,7 +598,7 @@ function switchTab(tab) {
   activeTab = tab;
   document.querySelectorAll('.tab').forEach(el => el.classList.toggle('active', el.dataset.tab === tab));
   document.querySelectorAll('.bottom-nav .nav-item').forEach(el => el.classList.toggle('active', el.dataset.nav === tab));
-  ['overview','gs','wb','btc','alerts'].forEach(id => {
+  ['overview','gs','wb','btc','eg','alerts'].forEach(id => {
     const el = document.getElementById('tab-' + id);
     if (el) el.classList.toggle('hidden', id !== tab);
   });
