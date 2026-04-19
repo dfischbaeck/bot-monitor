@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -14,109 +13,106 @@
 body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'SF Pro',sans-serif;min-height:100vh;padding-bottom:80px}
 
 /* Login */
-#login-screen{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
-.login-card{background:var(–bg2);border:0.5px solid var(–border);border-radius:20px;padding:32px 24px;width:100%;max-width:360px}
-.login-card h2{font-size:22px;font-weight:500;margin-bottom:6px;color:var(–text)}
-.login-card p{font-size:13px;color:var(–muted);margin-bottom:24px}
-.login-card input{width:100%;background:var(–bg3);border:0.5px solid var(–border);border-radius:10px;padding:12px 14px;color:var(–text);font-size:15px;margin-bottom:10px;outline:none}
+#login-screen{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:24px}
+.login-card{background:var(--bg2);border:0.5px solid var(--border);border-radius:20px;padding:32px 24px;width:100%;max-width:360px}
+.login-card h2{font-size:22px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.login-card p{font-size:13px;color:var(--muted);margin-bottom:24px}
+.login-card input{width:100%;background:var(--bg3);border:0.5px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:15px;margin-bottom:10px;outline:none}
 .login-card input:focus{border-color:#555}
-.btn-primary{width:100%;background:var(–green);color:#000;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px}
-.login-error{color:var(–red);font-size:12px;margin-top:8px;text-align:center}
+.btn-primary{width:100%;background:var(--green);color:#000;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:4px}
+.login-error{color:var(--red);font-size:12px;margin-top:8px;text-align:center}
 
 /* Header */
-.header{position:sticky;top:0;z-index:10;background:rgba(13,13,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:0.5px solid var(–border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.header{position:sticky;top:0;z-index:10;background:rgba(13,13,13,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:0.5px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
 .header-title{font-size:16px;font-weight:500}
 .header-right{display:flex;align-items:center;gap:8px}
-.live-dot{width:7px;height:7px;border-radius:50%;background:var(–green);animation:pulse 2s infinite}
-.live-dot.offline{background:var(–red);animation:none}
+.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+.live-dot.offline{background:var(--red);animation:none}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-.last-update{font-size:11px;color:var(–muted)}
+.last-update{font-size:11px;color:var(--muted)}
 
 /* Tabs */
 .tabs{display:flex;gap:3px;padding:10px 12px 0;overflow-x:auto;scrollbar-width:none}
 .tabs::-webkit-scrollbar{display:none}
-.tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;color:var(–muted);cursor:pointer;border:0.5px solid transparent;transition:all .15s}
-.tab.active{background:var(–bg2);color:var(–text);border-color:var(–border)}
+.tab{flex-shrink:0;padding:6px 14px;border-radius:20px;font-size:13px;color:var(--muted);cursor:pointer;border:0.5px solid transparent;transition:all .15s}
+.tab.active{background:var(--bg2);color:var(--text);border-color:var(--border)}
 
 /* Cards */
 .content{padding:10px 12px}
-.card{background:var(–bg2);border:0.5px solid var(–border);border-radius:16px;padding:14px;margin-bottom:10px}
+.card{background:var(--bg2);border:0.5px solid var(--border);border-radius:16px;padding:14px;margin-bottom:10px}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
-.card-title{font-size:14px;font-weight:500;color:var(–text)}
+.card-title{font-size:14px;font-weight:500;color:var(--text)}
 .badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:500}
-.badge.active{background:#14532d;color:var(–green)}
-.badge.offline{background:#450a0a;color:var(–red)}
-.badge.warn{background:#713f12;color:var(–yellow)}
+.badge.active{background:#14532d;color:var(--green)}
+.badge.offline{background:#450a0a;color:var(--red)}
+.badge.warn{background:#713f12;color:var(--yellow)}
 
 /* Metrics */
 .metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
-.metric{background:var(–bg3);border-radius:10px;padding:10px 12px}
-.metric-label{font-size:10px;color:var(–muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
+.metric{background:var(--bg3);border-radius:10px;padding:10px 12px}
+.metric-label{font-size:10px;color:var(--muted);margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
 .metric-value{font-size:18px;font-weight:500}
-.metric-value.green{color:var(–green)}
-.metric-value.red{color:var(–red)}
-.metric-value.yellow{color:var(–yellow)}
-.metric-value.cyan{color:var(–cyan)}
-.metric-value.blue{color:var(–blue)}
+.metric-value.green{color:var(--green)}
+.metric-value.red{color:var(--red)}
+.metric-value.yellow{color:var(--yellow)}
+.metric-value.cyan{color:var(--cyan)}
+.metric-value.blue{color:var(--blue)}
 
 /* Levels */
-.levels-title{font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
-.level-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(–border);font-size:13px}
+.levels-title{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.level-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:0.5px solid var(--border);font-size:13px}
 .level-row:last-child{border-bottom:none}
-.level-info{color:var(–muted)}
-.level-floor{font-size:11px;color:var(–cyan)}
+.level-info{color:var(--muted)}
+.level-floor{font-size:11px;color:var(--cyan)}
 
 /* Progress bar */
-.prog-bar{height:4px;background:var(–bg3);border-radius:2px;margin:10px 0 4px;overflow:hidden}
+.prog-bar{height:4px;background:var(--bg3);border-radius:2px;margin:10px 0 4px;overflow:hidden}
 .prog-fill{height:100%;border-radius:2px;transition:width .5s}
-.prog-fill.safe{background:var(–green)}
-.prog-fill.warn{background:var(–yellow)}
-.prog-fill.danger{background:var(–red)}
-.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(–muted)}
+.prog-fill.safe{background:var(--green)}
+.prog-fill.warn{background:var(--yellow)}
+.prog-fill.danger{background:var(--red)}
+.prog-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--muted)}
 
 /* Alerts */
-.alert-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;background:var(–bg3);margin-bottom:6px}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:9px 12px;border-radius:10px;background:var(--bg3);margin-bottom:6px}
 .alert-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:3px}
-.alert-dot.success{background:var(–green)}
-.alert-dot.info{background:var(–blue)}
-.alert-dot.warning{background:var(–yellow)}
-.alert-dot.error{background:var(–red)}
-.alert-text{font-size:13px;color:var(–text);line-height:1.4}
-.alert-time{font-size:10px;color:var(–muted);margin-top:2px}
+.alert-dot.success{background:var(--green)}
+.alert-dot.info{background:var(--blue)}
+.alert-dot.warning{background:var(--yellow)}
+.alert-dot.error{background:var(--red)}
+.alert-text{font-size:13px;color:var(--text);line-height:1.4}
+.alert-time{font-size:10px;color:var(--muted);margin-top:2px}
 
 /* Bottom nav */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,.95);backdrop-filter:blur(12px);border-top:0.5px solid var(–border);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(13,13,13,.95);backdrop-filter:blur(12px);border-top:0.5px solid var(--border);display:flex;padding:8px 0 max(8px,env(safe-area-inset-bottom))}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px;cursor:pointer;opacity:.5;transition:opacity .15s}
 .nav-item.active{opacity:1}
 .nav-icon{font-size:20px;line-height:1}
-.nav-label{font-size:10px;color:var(–text)}
+.nav-label{font-size:10px;color:var(--text)}
 
 /* Section divider */
-.section-label{font-size:11px;color:var(–muted);text-transform:uppercase;letter-spacing:.06em;padding:14px 0 6px}
+.section-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding:14px 0 6px}
 
 /* Loading */
-#loading{position:fixed;inset:0;background:var(–bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:50}
-.spinner{width:32px;height:32px;border:2px solid var(–border);border-top-color:var(–green);border-radius:50%;animation:spin .8s linear infinite}
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;z-index:50}
+.spinner{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 .hidden{display:none!important}
 
 /* Empty state */
-.empty{text-align:center;padding:32px 16px;color:var(–muted);font-size:14px}
+.empty{text-align:center;padding:32px 16px;color:var(--muted);font-size:14px}
 </style>
-
 </head>
 <body>
 
 <!-- Loading -->
-
 <div id="loading">
   <div class="spinner"></div>
   <div style="font-size:13px;color:var(--muted)">Verbinde...</div>
 </div>
 
 <!-- Login -->
-
 <div id="login-screen" class="hidden">
   <div class="login-card">
     <h2>Bot Monitor</h2>
@@ -129,7 +125,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
 </div>
 
 <!-- App -->
-
 <div id="app" class="hidden">
   <div class="header">
     <div class="header-title">Bot Monitor</div>
@@ -141,7 +136,6 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   </div>
 
   <!-- Tabs (Übersicht + je Bot) -->
-
   <div class="tabs">
     <div class="tab active" data-tab="overview" onclick="switchTab('overview')">Übersicht</div>
     <div class="tab" data-tab="gs" onclick="switchTab('gs')">Gold/Silber</div>
@@ -151,20 +145,17 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   </div>
 
   <!-- Overview Tab -->
-
   <div class="content" id="tab-overview">
     <div class="section-label">Live Status</div>
     <div id="overview-cards"></div>
   </div>
 
   <!-- Bot Detail Tabs -->
-
   <div class="content hidden" id="tab-gs">   <div id="detail-gs"></div></div>
   <div class="content hidden" id="tab-wb">   <div id="detail-wb"></div></div>
   <div class="content hidden" id="tab-btc">  <div id="detail-btc"></div></div>
 
   <!-- Alerts Tab -->
-
   <div class="content hidden" id="tab-alerts">
     <div class="section-label">Letzte Ereignisse</div>
     <div id="alerts-list"></div>
@@ -202,6 +193,78 @@ let positions  = {};
 let alerts     = [];
 let activeTab  = 'overview';
 let isOnline   = false;
+
+// ── Z-Score History (in-memory, max 60 Punkte pro Bot) ─────────
+const zHistory = { gs: [], wb: [], btc: [] };
+const Z_HIST_MAX = 60;
+
+function trackZHistory(botId, zVal) {
+  if (typeof zVal !== 'number' || isNaN(zVal)) return;
+  const h = zHistory[botId];
+  h.push(zVal);
+  if (h.length > Z_HIST_MAX) h.shift();
+}
+
+function drawZChart(canvasId, hist, zStart, zWarn, zMax) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || hist.length < 2) return;
+  const ctx  = canvas.getContext('2d');
+  const W    = canvas.offsetWidth || canvas.parentElement.offsetWidth || 300;
+  const H    = 56;
+  canvas.width  = W;
+  canvas.height = H;
+
+  const n    = hist.length;
+  const pad  = 2;
+  const xStep = (W - pad*2) / Math.max(n-1, 1);
+
+  // Farbzonen-Hintergrund
+  const drawZone = (yMin, yMax, col) => {
+    ctx.fillStyle = col;
+    ctx.fillRect(0, yMin, W, yMax - yMin);
+  };
+  const yOf = v => pad + (1 - (v + zMax) / (2*zMax)) * (H - pad*2);
+
+  drawZone(0,        yOf(zWarn),  'rgba(127,29,29,0.3)');
+  drawZone(yOf(zWarn), yOf(zStart), 'rgba(113,63,18,0.3)');
+  drawZone(yOf(zStart),yOf(-zStart),'rgba(20,83,45,0.2)');
+  drawZone(yOf(-zStart),yOf(-zWarn),'rgba(113,63,18,0.3)');
+  drawZone(yOf(-zWarn),H,           'rgba(127,29,29,0.3)');
+
+  // Referenzlinien
+  [zStart, -zStart, 0].forEach(ref => {
+    ctx.strokeStyle = ref === 0 ? 'rgba(100,100,100,0.4)' : 'rgba(180,130,0,0.3)';
+    ctx.lineWidth   = 0.5;
+    ctx.setLineDash([3,3]);
+    ctx.beginPath();
+    ctx.moveTo(0, yOf(ref));
+    ctx.lineTo(W, yOf(ref));
+    ctx.stroke();
+  });
+  ctx.setLineDash([]);
+
+  // Z-Score Linie
+  ctx.beginPath();
+  ctx.lineWidth = 2;
+  hist.forEach((z, i) => {
+    const x = pad + i * xStep;
+    const y = yOf(Math.max(-zMax, Math.min(zMax, z)));
+    i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+  });
+  // Farbe nach letztem Wert
+  const last = hist[hist.length-1];
+  const la   = Math.abs(last);
+  ctx.strokeStyle = la >= zWarn ? '#f87171' : la >= zStart ? '#fbbf24' : '#4ade80';
+  ctx.stroke();
+
+  // Aktueller Punkt
+  const lx = pad + (n-1) * xStep;
+  const ly = yOf(Math.max(-zMax, Math.min(zMax, last)));
+  ctx.beginPath();
+  ctx.arc(lx, ly, 3, 0, Math.PI*2);
+  ctx.fillStyle = la >= zWarn ? '#f87171' : la >= zStart ? '#fbbf24' : '#4ade80';
+  ctx.fill();
+}
 
 // ── Auth ────────────────────────────────────────────────────────
 async function init() {
@@ -246,7 +309,10 @@ async function loadData() {
     sb.from('grid_positions').select('*'),
     sb.from('alerts').select('*').order('timestamp', {ascending: false}).limit(50),
   ]);
-  if (statusRes.data)  statusRes.data.forEach(r => botData[r.id] = r);
+  if (statusRes.data)  statusRes.data.forEach(r => {
+    botData[r.id] = r;
+    trackZHistory(r.id, r.z_score);
+  });
   if (posRes.data)     groupPositions(posRes.data);
   if (alertRes.data)   alerts = alertRes.data;
   render();
@@ -264,7 +330,11 @@ function groupPositions(data) {
 function subscribeRealtime() {
   sb.channel('monitor')
     .on('postgres_changes', { event: '*', schema: 'public', table: 'bot_status' },
-      payload => { botData[payload.new.id] = payload.new; render(); })
+      payload => {
+        botData[payload.new.id] = payload.new;
+        trackZHistory(payload.new.id, payload.new.z_score);
+        render();
+      })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'grid_positions' },
       payload => { loadPositions(); })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'alerts' },
@@ -363,18 +433,78 @@ function renderDetail(botId) {
 
   let html = '';
 
-  // ── Preise ──────────────────────────────────────────────────
+  // ── Preise & Z-Score ────────────────────────────────────────
   if (!isBTC) {
+    const z     = d.z_score || 0;
+    const zAbs  = Math.abs(z);
+    const zMax  = 5.5;
+    const zStart = 1.5;
+    const zWarn  = 2.5;
+    const zCol  = zAbs >= zWarn ? '#f87171' : zAbs >= zStart ? '#fbbf24' : '#4ade80';
+    const zDir  = z > zStart  ? '▲ BUY '+(isGS?'Gold':'WTI')+' / SELL '+(isGS?'Silber':'BRENT')
+                : z < -zStart ? '▲ BUY '+(isGS?'Gold':'WTI')+' / SELL '+(isGS?'Silber':'BRENT')
+                : '– Kein Signal';
+    const zDirCol = zAbs > zStart ? zCol : '#555';
+
+    // Balken aufbauen: 60 Segmente, Farbzonen
+    const segs = 60;
+    let barHtml = '';
+    for (let i=0; i<segs; i++) {
+      const zVal = -zMax + (i / segs) * 2 * zMax;
+      const a = Math.abs(zVal);
+      const c = a >= zWarn ? '#7f1d1d' : a >= zStart ? '#713f12' : '#14532d';
+      barHtml += `<div style="flex:1;height:8px;background:${c};border-radius:1px"></div>`;
+    }
+    // Pointer-Position
+    const pctPtr = Math.min(99, Math.max(1, (z + zMax) / (2*zMax) * 100));
+    // Z-Label Position
+    const labelLeft = Math.min(88, Math.max(2, pctPtr - 4));
+
+    // Mini-Chart
+    const hist = zHistory[botId] || [];
+    const chartId = `zchart-${botId}`;
+
     html += `<div class="card">
-      <div class="card-header"><span class="card-title">Preise & Z-Score</span></div>
-      <div class="metric-grid">
-        <div class="metric"><div class="metric-label">${isGS?'Gold':'WTI'}</div><div class="metric-value">${(d.sym1_bid||0).toFixed(2)}</div></div>
-        <div class="metric"><div class="metric-label">${isGS?'Silber':'BRENT'}</div><div class="metric-value">${(d.sym2_bid||0).toFixed(3)}</div></div>
-        <div class="metric"><div class="metric-label">Z-Score</div><div class="metric-value ${Math.abs(d.z_score||0)>2.5?'red':Math.abs(d.z_score||0)>1.5?'yellow':'green'}">${(d.z_score||0).toFixed(3)}</div></div>
-        <div class="metric"><div class="metric-label">Half-Life</div><div class="metric-value blue">${(d.half_life_h||0).toFixed(1)}h</div></div>
+      <div class="card-header">
+        <span class="card-title">Z-Score</span>
+        <span style="font-size:13px;font-weight:500;color:${zCol}">${z>=0?'+':''}${z.toFixed(3)}</span>
       </div>
-      <div style="font-size:11px;color:var(--muted)">Hurst: ${(d.hurst_exp||0.5).toFixed(3)} &nbsp;·&nbsp; σ=${(d.ratio_std||0).toFixed(4)}</div>
+
+      <div style="font-size:11px;color:${zDirCol};margin-bottom:8px;font-weight:500">${zDir}</div>
+
+      <!-- Farbiger Balken -->
+      <div style="position:relative;margin-bottom:4px">
+        <div style="display:flex;gap:1px;border-radius:4px;overflow:hidden">${barHtml}</div>
+        <!-- Pointer -->
+        <div style="position:absolute;top:-3px;left:${pctPtr}%;transform:translateX(-50%);width:2px;height:14px;background:${zCol};border-radius:1px"></div>
+      </div>
+      <!-- Z-Wert Label über Pointer -->
+      <div style="position:relative;height:14px;margin-bottom:2px">
+        <div style="position:absolute;left:${labelLeft}%;font-size:10px;font-weight:500;color:${zCol}">${z>=0?'+':''}${z.toFixed(2)}</div>
+      </div>
+      <!-- Skala -->
+      <div style="display:flex;justify-content:space-between;font-size:9px;color:#444;margin-bottom:10px">
+        <span>-${zMax}</span><span style="color:#713f12">-${zWarn}</span><span style="color:#166534">-${zStart}</span>
+        <span style="color:#555">0</span>
+        <span style="color:#166534">+${zStart}</span><span style="color:#713f12">+${zWarn}</span><span>+${zMax}</span>
+      </div>
+
+      <!-- Mini Z-Score Chart -->
+      <div style="font-size:10px;color:#555;margin-bottom:4px">Z-Score Verlauf (letzte ${hist.length} Updates)</div>
+      <canvas id="${chartId}" height="56" style="width:100%;display:block;border-radius:6px;background:#111"></canvas>
+
+      <!-- Preise + Stats -->
+      <div class="metric-grid" style="margin-top:10px">
+        <div class="metric"><div class="metric-label">${isGS?'Gold':'WTI'}</div><div class="metric-value">${(d.sym1_bid||0).toFixed(isGS?2:3)}</div></div>
+        <div class="metric"><div class="metric-label">${isGS?'Silber':'BRENT'}</div><div class="metric-value">${(d.sym2_bid||0).toFixed(3)}</div></div>
+        <div class="metric"><div class="metric-label">Half-Life</div><div class="metric-value blue">${(d.half_life_h||0).toFixed(1)}h</div></div>
+        <div class="metric"><div class="metric-label">Hurst</div><div class="metric-value ${(d.hurst_exp||0.5)<0.45?'green':(d.hurst_exp||0.5)<0.55?'yellow':'red'}">${(d.hurst_exp||0.5).toFixed(3)}</div></div>
+      </div>
     </div>`;
+
+    // Chart nach DOM-Insert zeichnen
+    requestAnimationFrame(() => drawZChart(chartId, hist, zStart, zWarn, zMax));
+
   } else {
     html += `<div class="card">
       <div class="card-header"><span class="card-title">BTC Preis</span></div>
@@ -470,6 +600,5 @@ function switchTab(tab) {
 // ── Start ────────────────────────────────────────────────────────
 init();
 </script>
-
 </body>
 </html>
