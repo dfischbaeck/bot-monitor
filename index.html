@@ -387,9 +387,9 @@ function render() {
 
 function renderOverview() {
   const bots = [
+    {id:'btc', name:'BTC Scalping',  sym:'BTCUSD'},
     {id:'gs',  name:'Gold / Silber', sym:'XAUUSD/XAGUSD'},
     {id:'wb',  name:'WTI / BRENT',   sym:'WTI/BRENT'},
-    {id:'btc', name:'BTC Scalping',  sym:'BTCUSD'},
     {id:'eg',  name:'EUR / GBP',      sym:'EURUSD/GBPUSD'},
   ];
   document.getElementById('overview-cards').innerHTML = bots.map(b => {
