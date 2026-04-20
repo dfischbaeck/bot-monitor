@@ -167,14 +167,14 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     <div class="nav-item active" data-nav="overview" onclick="switchTab('overview')">
       <div class="nav-icon">⊞</div><div class="nav-label">Übersicht</div>
     </div>
+    <div class="nav-item" data-nav="btc" onclick="switchTab('btc')">
+      <div class="nav-icon">₿</div><div class="nav-label">BTC Bot</div>
+    </div>
     <div class="nav-item" data-nav="gs" onclick="switchTab('gs')">
       <div class="nav-icon">◈</div><div class="nav-label">GS Bot</div>
     </div>
     <div class="nav-item" data-nav="wb" onclick="switchTab('wb')">
       <div class="nav-icon">◈</div><div class="nav-label">WTI Bot</div>
-    </div>
-    <div class="nav-item" data-nav="btc" onclick="switchTab('btc')">
-      <div class="nav-icon">₿</div><div class="nav-label">BTC Bot</div>
     </div>
     <div class="nav-item" data-nav="eg" onclick="switchTab('eg')">
       <div class="nav-icon">€</div><div class="nav-label">EG Bot</div>
@@ -357,7 +357,7 @@ async function loadPositions() {
 }
 
 // ── Helpers ─────────────────────────────────────────────────────
-const fmtPnl  = v => (v >= 0 ? '+' : '') + '$' + Math.abs(v).toFixed(2);
+const fmtPnl  = v => (v >= 0 ? '+$' : '-$') + Math.abs(v).toFixed(2);
 const pnlCol  = v => v >= 0 ? 'green' : 'red';
 const ago     = ts => {
   const s = Math.floor((Date.now() - new Date(ts)) / 1000);
@@ -371,7 +371,7 @@ function stopBar(used, max, label) {
   const cls = pct < 40 ? 'safe' : pct < 75 ? 'warn' : 'danger';
   return `
     <div class="prog-bar"><div class="prog-fill ${cls}" style="width:${pct.toFixed(1)}%"></div></div>
-    <div class="prog-labels"><span>${label}</span><span>$${used.toFixed(0)} / $${max.toFixed(0)}</span></div>`;
+    <div class="prog-labels"><span>${label}</span><span>$${used.toFixed(0)} / ${max >= 999990 ? '∞' : '$'+max.toFixed(0)}</span></div>`;
 }
 
 // ── Render ──────────────────────────────────────────────────────
@@ -423,14 +423,22 @@ function renderOverview() {
         const segs=40;let bar='';
         for(let i=0;i<segs;i++){const v=-zMax+(i/segs)*2*zMax,a=Math.abs(v);bar+=`<div style="flex:1;height:5px;background:${a>=zWarn?'#7f1d1d':a>=zStart?'#713f12':'#14532d'};border-radius:1px"></div>`;}
         const ptr=Math.min(98,Math.max(2,(z+zMax)/(2*zMax)*100));
+        // Entry threshold markers
+        const ptrPos = Math.min(98,Math.max(2,(zStart+zMax)/(2*zMax)*100));
+        const ptrNeg = Math.min(98,Math.max(2,(-zStart+zMax)/(2*zMax)*100));
+        // Signal text
+        const sigTxt = zA>=zStart ? (z>0 ? '▼ Signal SHORT' : '▲ Signal LONG') : '– Kein Signal';
+        const sigCol = zA>=zStart ? zCol : '#444';
         return `<div style="margin-bottom:8px">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-            <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Z-Score</span>
+            <span style="font-size:10px;color:${sigCol};font-weight:500">${sigTxt}</span>
             <span style="font-size:13px;font-weight:600;color:${zCol}">${z>=0?'+':''}${z.toFixed(2)}</span>
           </div>
           <div style="position:relative;margin-bottom:2px">
             <div style="display:flex;gap:1px;border-radius:3px;overflow:hidden">${bar}</div>
             <div style="position:absolute;top:-2px;left:${ptr}%;transform:translateX(-50%);width:2px;height:9px;background:${zCol};border-radius:1px"></div>
+            <div style="position:absolute;top:0;left:${ptrPos}%;width:1px;height:5px;background:rgba(255,255,255,0.25)"></div>
+            <div style="position:absolute;top:0;left:${ptrNeg}%;width:1px;height:5px;background:rgba(255,255,255,0.25)"></div>
           </div>
         </div>`;
       })() : ''}
