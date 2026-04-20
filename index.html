@@ -138,9 +138,9 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
   <!-- Tabs (Übersicht + je Bot) -->
   <div class="tabs">
     <div class="tab active" data-tab="overview" onclick="switchTab('overview')">Übersicht</div>
-    <div class="tab" data-tab="btc" onclick="switchTab('btc')">BTC</div>
     <div class="tab" data-tab="gs" onclick="switchTab('gs')">Gold/Silber</div>
     <div class="tab" data-tab="wb" onclick="switchTab('wb')">WTI/BRENT</div>
+    <div class="tab" data-tab="btc" onclick="switchTab('btc')">BTC</div>
     <div class="tab" data-tab="eg" onclick="switchTab('eg')">EUR/GBP</div>
     <div class="tab" data-tab="alerts" onclick="switchTab('alerts')">Alerts</div>
   </div>
@@ -167,14 +167,14 @@ body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSy
     <div class="nav-item active" data-nav="overview" onclick="switchTab('overview')">
       <div class="nav-icon">⊞</div><div class="nav-label">Übersicht</div>
     </div>
-    <div class="nav-item" data-nav="btc" onclick="switchTab('btc')">
-      <div class="nav-icon">₿</div><div class="nav-label">BTC Bot</div>
-    </div>
     <div class="nav-item" data-nav="gs" onclick="switchTab('gs')">
       <div class="nav-icon">◈</div><div class="nav-label">GS Bot</div>
     </div>
     <div class="nav-item" data-nav="wb" onclick="switchTab('wb')">
       <div class="nav-icon">◈</div><div class="nav-label">WTI Bot</div>
+    </div>
+    <div class="nav-item" data-nav="btc" onclick="switchTab('btc')">
+      <div class="nav-icon">₿</div><div class="nav-label">BTC Bot</div>
     </div>
     <div class="nav-item" data-nav="eg" onclick="switchTab('eg')">
       <div class="nav-icon">€</div><div class="nav-label">EG Bot</div>
@@ -200,12 +200,11 @@ let activeTab  = 'overview';
 let isOnline   = false;
 
 // ── Z-Score History (in-memory, max 60 Punkte pro Bot) ─────────
-const zHistory = { gs: [], wb: [], eg: [], btc: [] };
+const zHistory = { gs: [], wb: [], btc: [] };
 const Z_HIST_MAX = 60;
 
 function trackZHistory(botId, zVal) {
   if (typeof zVal !== 'number' || isNaN(zVal)) return;
-  if (!zHistory[botId]) zHistory[botId] = [];
   const h = zHistory[botId];
   h.push(zVal);
   if (h.length > Z_HIST_MAX) h.shift();
@@ -379,19 +378,19 @@ function stopBar(used, max, label) {
 function render() {
   document.getElementById('last-update').textContent = new Date().toLocaleTimeString('de-AT', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
   renderOverview();
-  renderDetail('btc');
   renderDetail('gs');
   renderDetail('wb');
+  renderDetail('btc');
   renderDetail('eg');
   renderAlerts();
 }
 
 function renderOverview() {
   const bots = [
-    {id:'btc', name:'BTC Scalping',  sym:'BTCUSD'},
     {id:'gs',  name:'Gold / Silber', sym:'XAUUSD/XAGUSD'},
     {id:'wb',  name:'WTI / BRENT',   sym:'WTI/BRENT'},
-    {id:'eg',  name:'EUR / GBP',     sym:'EURUSD/GBPUSD'},
+    {id:'btc', name:'BTC Scalping',  sym:'BTCUSD'},
+    {id:'eg',  name:'EUR / GBP',      sym:'EURUSD/GBPUSD'},
   ];
   document.getElementById('overview-cards').innerHTML = bots.map(b => {
     const d = botData[b.id];
@@ -417,6 +416,24 @@ function renderOverview() {
         <div class="metric"><div class="metric-label">Session P&L</div><div class="metric-value ${pnlCol(d.session_pnl)}">${fmtPnl(d.session_pnl||0)}</div></div>
         <div class="metric"><div class="metric-label">${b.id==='btc'?'Live P&L':'Grid P&L'}</div><div class="metric-value ${pnlCol(d.total_pnl)}">${fmtPnl(d.total_pnl||0)}</div></div>
       </div>
+      ${b.id !== 'btc' ? (()=>{
+        const z=d.z_score||0,zA=Math.abs(z);
+        const zCol=zA>=2.5?'#f87171':zA>=1.5?'#fbbf24':'#4ade80';
+        const zStart=1.5,zWarn=2.5,zMax=5.5;
+        const segs=40;let bar='';
+        for(let i=0;i<segs;i++){const v=-zMax+(i/segs)*2*zMax,a=Math.abs(v);bar+=`<div style="flex:1;height:5px;background:${a>=zWarn?'#7f1d1d':a>=zStart?'#713f12':'#14532d'};border-radius:1px"></div>`;}
+        const ptr=Math.min(98,Math.max(2,(z+zMax)/(2*zMax)*100));
+        return `<div style="margin-bottom:8px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+            <span style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">Z-Score</span>
+            <span style="font-size:13px;font-weight:600;color:${zCol}">${z>=0?'+':''}${z.toFixed(2)}</span>
+          </div>
+          <div style="position:relative;margin-bottom:2px">
+            <div style="display:flex;gap:1px;border-radius:3px;overflow:hidden">${bar}</div>
+            <div style="position:absolute;top:-2px;left:${ptr}%;transform:translateX(-50%);width:2px;height:9px;background:${zCol};border-radius:1px"></div>
+          </div>
+        </div>`;
+      })() : ''}
       <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:8px">
         <span>${d.n_open||0} offen · W:${d.trades_won||0} V:${d.trades_lost||0}</span>
         <span>${(d.trades_won||0)+(d.trades_lost||0) > 0 ? Math.round((d.trades_won||0)/((d.trades_won||0)+(d.trades_lost||0))*100)+'% WR' : '–'}</span>
@@ -437,12 +454,7 @@ function renderDetail(botId) {
 
   const isGS  = botId === 'gs';
   const isWB  = botId === 'wb';
-  const isEG  = botId === 'eg';
   const isBTC = botId === 'btc';
-  const sym1  = isGS ? 'Gold'   : isWB ? 'WTI'    : isEG ? 'EURUSD' : 'BTC';
-  const sym2  = isGS ? 'Silber' : isWB ? 'BRENT'  : 'GBPUSD';
-  const prec1 = isGS ? 2 : isEG ? 5 : 3;
-  const prec2 = isEG ? 5 : 3;
 
   let html = '';
 
@@ -454,8 +466,8 @@ function renderDetail(botId) {
     const zStart = 1.5;
     const zWarn  = 2.5;
     const zCol  = zAbs >= zWarn ? '#f87171' : zAbs >= zStart ? '#fbbf24' : '#4ade80';
-    const zDir  = z > zStart  ? `▼ SELL ${sym1} / BUY ${sym2}`
-                : z < -zStart ? `▲ BUY  ${sym1} / SELL ${sym2}`
+    const zDir  = z > zStart  ? '▲ BUY '+(isGS?'Gold':'WTI')+' / SELL '+(isGS?'Silber':'BRENT')
+                : z < -zStart ? '▲ BUY '+(isGS?'Gold':'WTI')+' / SELL '+(isGS?'Silber':'BRENT')
                 : '– Kein Signal';
     const zDirCol = zAbs > zStart ? zCol : '#555';
 
@@ -508,8 +520,8 @@ function renderDetail(botId) {
 
       <!-- Preise + Stats -->
       <div class="metric-grid" style="margin-top:10px">
-        <div class="metric"><div class="metric-label">${sym1}</div><div class="metric-value">${(d.sym1_bid||0).toFixed(prec1)}</div></div>
-        <div class="metric"><div class="metric-label">${sym2}</div><div class="metric-value">${(d.sym2_bid||0).toFixed(prec2)}</div></div>
+        <div class="metric"><div class="metric-label">${isGS?'Gold':'WTI'}</div><div class="metric-value">${(d.sym1_bid||0).toFixed(isGS?2:3)}</div></div>
+        <div class="metric"><div class="metric-label">${isGS?'Silber':'BRENT'}</div><div class="metric-value">${(d.sym2_bid||0).toFixed(3)}</div></div>
         <div class="metric"><div class="metric-label">Half-Life</div><div class="metric-value blue">${(d.half_life_h||0).toFixed(1)}h</div></div>
         <div class="metric"><div class="metric-label">Hurst</div><div class="metric-value ${(d.hurst_exp||0.5)<0.45?'green':(d.hurst_exp||0.5)<0.55?'yellow':'red'}">${(d.hurst_exp||0.5).toFixed(3)}</div></div>
       </div>
@@ -564,27 +576,16 @@ function renderDetail(botId) {
     html += `<div class="card"><div style="text-align:center;padding:16px;color:var(--muted);font-size:13px">Keine offenen Positionen</div></div>`;
   }
 
-  // ── Hedge Balance (GS, WB und EG) ───────────────────────────
-  if (!isBTC && (d.dv_sym1||0) > 0) {
-    const balanced  = (d.delta_pct||0) < 5;
-    const deltaUsd  = Math.abs((d.dv_sym1||0)-(d.dv_sym2||0));
-    const deltaPct  = d.delta_pct||0;
-    const hqCol     = balanced ? 'var(--green)' : deltaPct<15 ? 'var(--yellow)' : 'var(--red)';
-    const hqTxt     = balanced ? '● BALANCED' : deltaPct<15 ? '◑ LEICHT UNGLEICH' : '✗ UNGLEICH';
+  // ── Hedge (nur GS/WB) ────────────────────────────────────────
+  if (!isBTC && d.dv_sym1 > 0) {
+    const balanced = (d.delta_pct||0) < 5;
     html += `<div class="card">
-      <div class="card-header">
-        <span class="card-title">Hedge Balance</span>
-        <span class="badge ${balanced?'active':'warn'}">${d.hedge_status||'–'}</span>
-      </div>
+      <div class="card-header"><span class="card-title">Hedge Balance</span><span class="badge ${balanced?'active':'warn'}">${d.hedge_status||'–'}</span></div>
       <div class="metric-grid">
-        <div class="metric"><div class="metric-label">DV/1% ${sym1}</div><div class="metric-value">$${(d.dv_sym1||0).toFixed(0)}</div></div>
-        <div class="metric"><div class="metric-label">DV/1% ${sym2}</div><div class="metric-value">$${(d.dv_sym2||0).toFixed(0)}</div></div>
+        <div class="metric"><div class="metric-label">DV/1% ${isGS?'Gold':'WTI'}</div><div class="metric-value">$${(d.dv_sym1||0).toFixed(0)}</div></div>
+        <div class="metric"><div class="metric-label">DV/1% ${isGS?'Silber':'BRENT'}</div><div class="metric-value">$${(d.dv_sym2||0).toFixed(0)}</div></div>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px">
-        <span style="color:var(--muted)">Delta: $${deltaUsd.toFixed(0)} (${deltaPct.toFixed(1)}%)</span>
-        <span style="font-weight:500;color:${hqCol}">${hqTxt}</span>
-      </div>
-      ${(d.hedge_adj_lot||0)>0?`<div style="font-size:11px;color:var(--cyan);margin-top:6px">⚡ Ausgleich aktiv: ${d.hedge_adj_lot} Lot ${sym2}</div>`:''}
+      <div style="font-size:12px;color:var(--muted)">Delta: $${Math.abs((d.dv_sym1||0)-(d.dv_sym2||0)).toFixed(0)} (${(d.delta_pct||0).toFixed(1)}%)</div>
     </div>`;
   }
 
@@ -599,7 +600,7 @@ function renderAlerts() {
     return;
   }
   el.innerHTML = alerts.slice(0, 30).map(a => {
-    const bot = {gs:'GS',wb:'WB',btc:'BTC',eg:'EG'}[a.bot_id] || a.bot_id.toUpperCase();
+    const bot = a.bot_id === 'gs' ? 'GS' : a.bot_id === 'wb' ? 'WB' : 'BTC';
     return `<div class="alert-item">
       <div class="alert-dot ${a.level}"></div>
       <div>
